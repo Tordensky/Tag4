@@ -20,11 +20,13 @@ public class Tag4 extends Applet {
         (byte)0x20,             // Mapping Version 1 byte
         (byte)0x00, (byte)0x3B, // MLe Max R-APDU
         (byte)0x00, (byte)0x34, // MLc Max C-APDU
-            // TLV
-            (byte)0xE1, (byte)0x04,     // TLV File identifyer
-            (byte)0x00, (byte)TAG_SIZE, // TLV Max NDEF size
-            (byte)0x00,                 // NDEF file read access condition
-            (byte)0x00                  // NDEF file write access condition
+        (byte)0x04,             // T field of the NDEF file control TLV
+        (byte)0x06,             // L field of the NDEF file control TLV
+                                // V field of the NDEF file control TLV 
+        (byte)0xE1, (byte)0x04,     // File identifyer
+        (byte)0x00, (byte)TAG_SIZE, // Max NDEF size
+        (byte)0x00,                 // NDEF file read access condition
+        (byte)0x00                  // NDEF file write access condition
     };
     
     private byte[] NDFfile = new byte[TAG_SIZE];
