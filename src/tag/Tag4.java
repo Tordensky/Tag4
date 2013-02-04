@@ -12,20 +12,25 @@ import javacard.framework.*;
  * @author Simon
  */
 public class Tag4 extends Applet {
-        
+    
+    private final byte TAG_SIZE = (byte)0xFF;
+    
     private byte[] CCfile = new byte[]{
         (byte)0x00, (byte)0x0F, // CCLEN 2 bytes 
         (byte)0x20,             // Mapping Version 1 byte
         (byte)0x00, (byte)0x3B, // MLe Max R-APDU
         (byte)0x00, (byte)0x34, // MLc Max C-APDU
             // TLV
-            (byte)0xE1, (byte)0x04, // TLV File identifyer
-            (byte)0x00, (byte)0x32, // TLV Max NDEF size
-            (byte)0x00,             // NDEF file read access condition
-            (byte)0x00              // NDEF file write access condition
+            (byte)0xE1, (byte)0x04,     // TLV File identifyer
+            (byte)0x00, (byte)TAG_SIZE, // TLV Max NDEF size
+            (byte)0x00,                 // NDEF file read access condition
+            (byte)0x00                  // NDEF file write access condition
     };
     
-    private byte[] NDEFfile;
+    private byte[] NDFfile = new byte[TAG_SIZE];
+    
+    private static final byte INS_READ_BINARY = (byte)0xB0;
+    private static final byte INS_UPDATE_BINARY = (byte)0xD6;
 
     /**
      * Installs this applet.
@@ -58,6 +63,22 @@ public class Tag4 extends Applet {
     public void process(APDU apdu) { 
         if (selectingApplet()){
             return;
+        }
+        
+        byte[] buffer = apdu.getBuffer();
+        
+        switch (buffer[ISO7816.OFFSET_INS]){
+            case ISO7816.INS_SELECT:
+                break;
+                
+            case INS_READ_BINARY:
+                break;
+            
+            case INS_UPDATE_BINARY:
+                break;
+                
+            default:
+                ISOException.throwIt(ISO7816.SW_INS_NOT_SUPPORTED);
         }
     }
 }
