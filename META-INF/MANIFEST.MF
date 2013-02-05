@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Runtime-Descriptor-Version: 3.0
 Application-Type: classic-applet
-Classic-Package-AID: //aid/8BD51CDCA0/7D
+Runtime-Descriptor-Version: 3.0
+Classic-Package-AID: //aid/D276000085/543A54616734
 
