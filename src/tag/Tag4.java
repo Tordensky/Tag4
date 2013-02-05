@@ -29,10 +29,22 @@ public class Tag4 extends Applet {
         (byte)0x00                  // NDEF file write access condition
     };
     
-    private byte[] NDFfile = new byte[TAG_SIZE];
+    private byte[] NDEFfile = new byte[TAG_SIZE];
     
     private static final byte INS_READ_BINARY = (byte)0xB0;
     private static final byte INS_UPDATE_BINARY = (byte)0xD6;
+    
+    private static final byte PAR_SELECT_BY_ID = (byte)0x00;
+    private static final byte PAR_FIRST_ONLY_OCC = (byte)0x0C;
+    
+    private static final short CC_ID = (short)0xE103;
+    private static final short NDEF_ID = (short)0xE104;
+    
+    private static final short STATE_WAIT = 1;
+    private static final short STATE_CC_SELECTED = 2; 
+    private static final short STATE_NDEF_SELECTED = 3;
+    
+    private short currentState = STATE_WAIT;
 
     /**
      * Installs this applet.
@@ -71,8 +83,28 @@ public class Tag4 extends Applet {
         
         switch (buffer[ISO7816.OFFSET_INS]){
             case ISO7816.INS_SELECT:
+                if (buffer[ISO7816.OFFSET_P1] == PAR_SELECT_BY_ID){
+                   if (buffer[ISO7816.OFFSET_P2] == PAR_FIRST_ONLY_OCC){
+                       short data = javacard.framework.Util.makeShort(buffer[ISO7816.OFFSET_CDATA], buffer[ISO7816.OFFSET_CDATA+1]);
+                       
+                       if (data == CC_ID){
+                           currentState = STATE_CC_SELECTED;
+                           return;
+                       }
+                       else if (data == NDEF_ID){
+                           currentState = STATE_NDEF_SELECTED;
+                           return;
+                       } else {
+                           ISOException.throwIt(ISO7816.SW_DATA_INVALID);
+                       }
+                   } else {
+                       ISOException.throwIt(ISO7816.SW_INCORRECT_P1P2);
+                   }
+                } else {
+                    ISOException.throwIt(ISO7816.SW_INCORRECT_P1P2);
+                }
                 break;
-                
+    
             case INS_READ_BINARY:
                 break;
             
