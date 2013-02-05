@@ -81,6 +81,7 @@ public class Tag4 extends Applet {
         }
         
         byte[] buffer = apdu.getBuffer();
+        short offset, lenght;
         
         switch (buffer[ISO7816.OFFSET_INS]){
             case ISO7816.INS_SELECT:
@@ -107,10 +108,10 @@ public class Tag4 extends Applet {
                 break;
     
             case INS_READ_BINARY:
-                short offset = javacard.framework.Util.makeShort(
+                offset = javacard.framework.Util.makeShort(
                             buffer[ISO7816.OFFSET_P1], 
                             buffer[ISO7816.OFFSET_P2]);
-                short lenght = buffer[ISO7816.OFFSET_LC];
+                lenght = buffer[ISO7816.OFFSET_LC];
                 
                 apdu.setOutgoing();
                 
@@ -138,6 +139,19 @@ public class Tag4 extends Applet {
                 break;
             
             case INS_UPDATE_BINARY:
+                if (currentState == STATE_WAIT || 
+                        currentState == STATE_CC_SELECTED){
+                    ISOException.throwIt(ISO7816.SW_INS_NOT_SUPPORTED);
+                }
+                else if (currentState == STATE_NDEF_SELECTED) {
+                    offset = javacard.framework.Util.makeShort(
+                            buffer[ISO7816.OFFSET_P1], 
+                            buffer[ISO7816.OFFSET_P2]);
+                    lenght = buffer[ISO7816.OFFSET_LC];
+                    
+                    javacard.framework.Util.arrayCopy(
+                            buffer, (short)5, NDEFfile, offset, lenght);
+                }
                 break;
                 
             default:
