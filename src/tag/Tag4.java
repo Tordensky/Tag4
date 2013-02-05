@@ -13,7 +13,7 @@ import javacard.framework.*;
  */
 public class Tag4 extends Applet {
     
-    private final byte TAG_SIZE = (byte)0xFF;
+    private final short TAG_SIZE = (short)0xFF;
     
     private byte[] CCfile = new byte[]{
         (byte)0x00, (byte)0x0F, // CCLEN 2 bytes 
