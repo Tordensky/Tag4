@@ -76,6 +76,7 @@ public class Tag4 extends Applet {
      */
     public void process(APDU apdu) { 
         if (selectingApplet()){
+            currentState = STATE_WAIT;
             return;
         }
         
@@ -85,15 +86,15 @@ public class Tag4 extends Applet {
             case ISO7816.INS_SELECT:
                 if (buffer[ISO7816.OFFSET_P1] == PAR_SELECT_BY_ID){
                    if (buffer[ISO7816.OFFSET_P2] == PAR_FIRST_ONLY_OCC){
-                       short data = javacard.framework.Util.makeShort(buffer[ISO7816.OFFSET_CDATA], buffer[ISO7816.OFFSET_CDATA+1]);
+                       short data = javacard.framework.Util.makeShort(
+                               buffer[ISO7816.OFFSET_CDATA], 
+                               buffer[ISO7816.OFFSET_CDATA+1]);
                        
                        if (data == CC_ID){
                            currentState = STATE_CC_SELECTED;
-                           return;
                        }
                        else if (data == NDEF_ID){
                            currentState = STATE_NDEF_SELECTED;
-                           return;
                        } else {
                            ISOException.throwIt(ISO7816.SW_DATA_INVALID);
                        }
@@ -106,6 +107,27 @@ public class Tag4 extends Applet {
                 break;
     
             case INS_READ_BINARY:
+                if (currentState == STATE_WAIT){
+                    ISOException.throwIt(ISO7816.SW_INS_NOT_SUPPORTED);
+                }
+                else if (currentState == STATE_CC_SELECTED){
+                    short offset = javacard.framework.Util.makeShort(
+                            buffer[ISO7816.OFFSET_P1], 
+                            buffer[ISO7816.OFFSET_P2]);
+                    short lenght = buffer[ISO7816.OFFSET_LC];
+                    if (lenght > 0x0f){
+                        ISOException.throwIt(ISO7816.SW_WRONG_LENGTH);
+                    }
+                    apdu.setOutgoing();
+                    javacard.framework.Util.arrayCopy(
+                            CCfile, offset, buffer, (short)0, lenght);
+                    apdu.setOutgoingLength(lenght);
+                    apdu.sendBytes((short)0, lenght);
+                    
+                }
+                else if (currentState == STATE_NDEF_SELECTED){
+                    
+                }
                 break;
             
             case INS_UPDATE_BINARY:
