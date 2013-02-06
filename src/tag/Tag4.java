@@ -87,6 +87,18 @@ public class Tag4 extends Applet {
             case ISO7816.INS_SELECT:
                 if (buffer[ISO7816.OFFSET_P1] == PAR_SELECT_BY_ID){
                    if (buffer[ISO7816.OFFSET_P2] == PAR_FIRST_ONLY_OCC){
+                        offset = javacard.framework.Util.makeShort(
+                            buffer[ISO7816.OFFSET_P1], 
+                            buffer[ISO7816.OFFSET_P2]);
+                        lenght = buffer[ISO7816.OFFSET_LC];
+
+                        short readCount = apdu.setIncomingAndReceive();
+                        short bytesLeft = (short)lenght;
+                        while (bytesLeft > (short)0){
+                            bytesLeft -= readCount;
+                            readCount = apdu.receiveBytes ( ISO7816.OFFSET_CDATA );
+                        }
+                       
                        short data = javacard.framework.Util.makeShort(
                                buffer[ISO7816.OFFSET_CDATA], 
                                buffer[ISO7816.OFFSET_CDATA+1]);
@@ -148,6 +160,13 @@ public class Tag4 extends Applet {
                             buffer[ISO7816.OFFSET_P1], 
                             buffer[ISO7816.OFFSET_P2]);
                     lenght = buffer[ISO7816.OFFSET_LC];
+                    
+                    short readCount = apdu.setIncomingAndReceive();
+                    short bytesLeft = (short)lenght;
+                    while (bytesLeft > (short)0){
+                        bytesLeft -= readCount;
+                        readCount = apdu.receiveBytes ( ISO7816.OFFSET_CDATA );
+                    }
                     
                     javacard.framework.Util.arrayCopy(
                             buffer, (short)5, NDEFfile, offset, lenght);
